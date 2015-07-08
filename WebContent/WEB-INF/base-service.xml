@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:task="http://www.springframework.org/schema/task"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans 
+    				http://www.springframework.org/schema/beans/spring-beans.xsd
+    				http://www.springframework.org/schema/task 
+    				http://www.springframework.org/schema/task/spring-task.xsd">
+    				
+    <task:annotation-driven executor="taskExecuter"/>
+	<task:executor queue-capacity="100" id="taskExecuter"/>
+
+ <!-- ========================= Start of SERVICE DEFINITIONS ========================= -->
+    
+    <!-- ApiSpecService Service Proxy with inner UserService Service Implementation -->	
+	<bean id="apiSpecServiceTarget" class="com.jumkid.base.model.ApiSpecService">
+	  <property name="apiSpecs"><ref bean="apiSpecs"/></property>
+	</bean>		
+			  
+  	<bean id="apiSpecService" class="org.springframework.aop.framework.ProxyFactoryBean">
+      <property name="target"><ref bean="apiSpecServiceTarget"/></property>
+      <property name="proxyInterfaces"><value>com.jumkid.base.model.IApiSpecService</value></property>
+      <property name="interceptorNames">
+          <list>
+              <value>loggingAdvice</value>
+              <!-- <value>serviceTransactionInterceptor</value> -->                
+          </list>
+      </property>
+  	</bean>       
+    
+	<!-- UserService Service Proxy with inner UserService Service Implementation -->	
+	<bean id="userServiceTarget" class="com.jumkid.base.model.user.UserService">
+		<property name="userDao"><ref bean="userDao"/></property>
+		<property name="userGroupDao"><ref bean="userGroupDao"/></property>
+		<property name="abstractBeanValidator"><ref bean="abstractBeanValidator"/></property>		
+	</bean>		
+			  
+  <bean id="userService" class="org.springframework.aop.framework.ProxyFactoryBean">
+      <property name="target"><ref bean="userServiceTarget"/></property>
+      <property name="proxyInterfaces"><value>com.jumkid.base.model.user.IUserService</value></property>
+      <property name="interceptorNames">
+          <list>
+              <value>loggingAdvice</value>
+              <!-- <value>serviceTransactionInterceptor</value> -->                
+          </list>
+      </property>
+  </bean>    
+    
+    <bean id="dataLogServiceTarget" class="com.jumkid.base.model.datalog.DataLogService">
+	    <property name="dataLogDao"><ref bean="dataLogDao"/></property>
+	</bean>
+    <bean id="dataLogService" class="org.springframework.aop.framework.ProxyFactoryBean">
+        <property name="target">
+            <ref bean="dataLogServiceTarget"/>
+        </property>
+        <property name="proxyInterfaces">
+            <value>com.jumkid.base.model.datalog.IDataLogService</value>
+        </property>
+        <property name="interceptorNames">
+            <list>
+                <value>loggingAdvice</value>                
+            </list>
+        </property>
+    </bean>
+  
+  <!-- MailService Service Proxy with inner IMailService Service Implementation -->
+  <bean id="mailServiceTarget" class="com.jumkid.base.mail.MailService">
+    <property name="userDao"><ref bean="userDao"/></property>
+    <property name="mailSender"><ref bean="mailSender"/></property>
+    <property name="defaultFromName"><value>${smtp.username}</value></property>                    
+    <property name="defaultFromAddress"><value>service@oracle.com</value></property>
+  </bean>
+  <bean id="mailService" class="org.springframework.aop.framework.ProxyFactoryBean">        
+    <property name="target">
+        <ref bean="mailServiceTarget"/>
+    </property>
+    <property name="proxyInterfaces">
+        <value>com.jumkid.base.mail.IMailService</value>
+    </property>                    
+    <property name="interceptorNames">
+        <list>
+            <value>loggingAdvice</value>                
+        </list>
+    </property>    
+  </bean>
+  
+  <bean id="mailSender" class="com.jumkid.base.mail.MailSender">
+  	  <property name="javaMailSender"><ref bean="javaMailSender"/></property>
+	  <property name="defaultFromName"><value>${smtp.username}</value></property>                    
+      <property name="defaultFromAddress"><value>${smtp.fromaddress}</value></property>
+  </bean>
+   
+  <!-- AbstractBeanValidator Service Proxy with inner IAbstractBeanValidator Service Implementation -->
+  <bean id="abstractBeanValidatorTarget" class="com.jumkid.base.model.AbstractBeanValidator">
+  </bean>
+            
+  <bean id="abstractBeanValidator" class="org.springframework.aop.framework.ProxyFactoryBean">
+      <property name="target"><ref bean="abstractBeanValidatorTarget"/></property>
+      <property name="proxyInterfaces"><value>com.jumkid.base.model.IAbstractBeanValidator</value></property>      
+  </bean>
+       
+  <!-- ===================== MAIL MANAGER DEFINITION ========================= -->
+  <bean id="javaMailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl"> 
+	   <property name="username" >
+	   	<value>${smtp.username}</value>  
+	   </property>
+	   <property name="password">
+		  <value>${smtp.password}</value>
+	   </property>
+	   <property name="javaMailProperties">
+	    <props>
+			<prop key="mail.smtp.host">${smtp.server.url}</prop>
+			<prop key="mail.smtp.port">${smtp.server.port}</prop>
+			<prop key="mail.smtp.auth">true</prop>
+			<prop key="mail.smtp.starttls.enable">true</prop>
+	   	</props>
+	   </property>  
+  </bean>       
+    
+  <bean class="com.jumkid.base.logging.LoggingAdvice" id="loggingAdvice"/>  
+       	
+  <!-- ========================= End of SERVICE DEFINITIONS ========================= -->
+    
+</beans>    

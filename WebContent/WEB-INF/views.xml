@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xsi:schemaLocation="http://www.springframework.org/schema/beans     
+        				   http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean name="htmlView" class="com.jumkid.base.view.HtmlView">
+  		<property name="contentType">
+  			<value>text/html;charset=utf-8</value>
+		</property>
+	</bean>
+  
+    <bean name="xmlView" class="com.jumkid.base.view.XmlView">
+  		<property name="contentType">
+  			<value>text/xml;charset=utf-8</value>
+		</property>
+	</bean>
+
+    <bean name="jsonView" class="com.jumkid.base.view.JsonView">
+  		<property name="contentType">
+  			<value>text/plain;charset=utf-8</value>
+		</property>
+	</bean>
+    
+</beans>

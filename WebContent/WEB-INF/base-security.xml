@@ -1,0 +1,52 @@
+<beans 	xmlns="http://www.springframework.org/schema/beans"
+	    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		xmlns:context="http://www.springframework.org/schema/context"
+		xmlns:security="http://www.springframework.org/schema/security"
+		xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+							http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+							http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd">
+	<context:annotation-config />
+	
+	<context:component-scan base-package="com.jumkid" />
+	
+	<!-- Entry point for REST service. -->
+	<bean id="restServicesEntryPoint"
+			class="com.jumkid.base.rest.security.RestAuthenticationEntryPoint" />
+	
+	<!-- Filter for REST services. -->
+	<bean id="restServicesFilter"
+			class="com.jumkid.base.rest.security.RestUsernamePasswordAuthenticationFilter">
+		<property name="postOnly" value="false" />
+		<property name="authenticationManager" ref="authenticationManager" />
+		<property name="authenticationSuccessHandler" ref="restServicesSuccessHandler" />
+	</bean>
+	
+	<!-- A handler for successful REST service authentication. -->
+	<bean id="restServicesSuccessHandler"
+						class="com.jumkid.base.rest.security.RestAuthenticationSuccessHandler" />
+	
+	<!-- Security configuration for other resources. Use login form. -->
+	<security:http use-expressions="true" create-session="always">
+		<security:intercept-url pattern="/**"
+							access="isAuthenticated()" />
+		<security:form-login login-page="/security/login.html?project=sample-project"
+							authentication-failure-url="/security/login.html?project=sample-project&amp;error=true" />
+		<security:logout logout-success-url="/security/login.html?project=sample-project" />
+	</security:http>
+	
+	<!-- Authentication manager. -->
+	<security:authentication-manager alias="authenticationManager">
+		<security:authentication-provider>
+			<security:user-service>
+				<security:user name="admin" password="password" authorities="ROLE_ADMIN" />
+				<security:user name="scott" password="password" authorities="ROLE_USER" />
+			</security:user-service>
+		</security:authentication-provider>
+	</security:authentication-manager>
+	
+	<security:global-method-security
+		secured-annotations="enabled" jsr250-annotations="enabled"
+		pre-post-annotations="enabled">
+	</security:global-method-security>
+	
+</beans>

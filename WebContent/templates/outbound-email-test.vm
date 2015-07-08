@@ -1,0 +1,10 @@
+Dear ${firstName} ${lastName}
+ 
+Sending Email Using Spring Smtp Email + Velocity Template from ${location} location.
+
+Thanks
+
+--
+<strong>Jumkid</strong>
+pursue travel and exploring
+<a href="www.jumkid.com" target="_blank">www.jumkid.com</a>

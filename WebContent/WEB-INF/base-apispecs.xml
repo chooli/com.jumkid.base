@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:util="http://www.springframework.org/schema/util"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+    			http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+
+	<bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+	     <property name="location" value="classpath:crm.properties"/>
+	     <property name="order" value="1"/>
+	</bean>
+ 
+	<util:list id="apiSpecs" list-class="java.util.ArrayList">
+        <bean class="com.jumkid.base.model.ApiSpec">
+        	<property name="module"><value>user</value></property>
+        	<property name="url"><value>user.json</value></property>
+        	<property name="format"><value>JSON</value></property>
+        	<property name="action"><value>login</value></property>
+        	<property name="input"><value>act=login, username=STRING, password=STRING</value></property>
+        	<property name="output"><value>success=true</value></property>
+        </bean>
+        <bean class="com.jumkid.base.model.ApiSpec">
+        	<property name="module"><value>user</value></property>
+        	<property name="url"><value>user.json</value></property>
+        	<property name="format"><value>JSON</value></property>
+        	<property name="action"><value>load</value></property>
+        	<property name="input"><value>act=load, id=INTEGER </value></property>
+        	<property name="output"><value>user</value></property>
+        	<property name="object"><bean class="com.jumkid.base.model.user.User"/></property>
+        </bean>
+        <bean class="com.jumkid.base.model.ApiSpec">
+        	<property name="module"><value>user</value></property>
+        	<property name="url"><value>user.json</value></property>
+        	<property name="format"><value>JSON</value></property>
+        	<property name="action"><value>delete</value></property>
+        	<property name="input"><value>act=delete, id=INTEGER </value></property>
+        	<property name="output"><value>null</value></property>
+        </bean>
+        <bean class="com.jumkid.base.model.ApiSpec">
+        	<property name="module"><value>user</value></property>
+        	<property name="url"><value>user.json</value></property>
+        	<property name="format"><value>JSON</value></property>
+        	<property name="action"><value>list</value></property>
+        	<property name="input"><value>act=list</value></property>
+        	<property name="output"><value>users</value></property>
+        	<property name="object"><bean class="com.jumkid.base.model.user.User"/></property>
+        </bean>
+    </util:list>
+    
+</beans>    

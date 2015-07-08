@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xsi:schemaLocation="http://www.springframework.org/schema/beans     
+					        http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	 <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="location" value="classpath:system.properties"/>
+		<property name="order" value="1"/>
+	 </bean> 
+ 
+ 	<bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+		<!-- Max size in bytes. -->
+		<property name="maxUploadSize" value="1000000000" />
+		<property name="defaultEncoding" value="utf-8" />
+	</bean>
+	
+	
+    
+ <!-- 
+   *************************************************************
+   SYSTEM Controller
+   *************************************************************
+  -->
+    <!-- maps to controller that handles the request, forwards to business logic, returns a view -->
+	<bean id="apiSpecControllerTarget" class="com.jumkid.base.controller.ApiSpecController">
+    	<property name="module"><value>api</value></property>
+    </bean>
+    <bean id="apiSpecController" class="org.springframework.aop.framework.ProxyFactoryBean">
+	    <property name="target">
+	        <ref bean="apiSpecControllerTarget"/>
+	    </property>
+	    <property name="proxyInterfaces">
+	        <value>org.springframework.web.servlet.mvc.Controller</value>
+	    </property>
+	    <property name="interceptorNames">
+	        <list>
+	            <value>permssionBeforeControllerAdvisor</value>
+	        </list>
+	    </property>
+	</bean>
+	
+    <bean id="userControllerTarget" class="com.clientfills.crm.controller.user.UserController">
+		<property name="module"><value>user</value></property>		
+		<property name="userService"><ref bean="userService"/></property>
+		<property name="mailService"><ref bean="mailService"/></property>
+			
+	</bean>  
+	<bean id="userController" class="org.springframework.aop.framework.ProxyFactoryBean">
+	    <property name="target">
+	        <ref bean="userControllerTarget"/>
+	    </property>
+	    <property name="proxyInterfaces">
+	        <value>org.springframework.web.servlet.mvc.Controller</value>
+	    </property>
+	    <property name="interceptorNames">
+	        <list>
+	            <value>permssionBeforeControllerAdvisor</value>
+	        </list>
+	    </property>
+	</bean>
+	
+	<bean id="userGroupControllerTarget" class="com.clientfills.crm.controller.user.UserGroupController">
+	    <property name="module"><value>usergroup</value></property>
+		<property name="userService"><ref bean="userService"/></property>        
+	</bean>
+	<bean id="userGroupController" class="org.springframework.aop.framework.ProxyFactoryBean">
+	    <property name="target">
+	        <ref bean="userGroupControllerTarget"/>
+	    </property>
+	    <property name="proxyInterfaces">
+	        <value>org.springframework.web.servlet.mvc.Controller</value>
+	    </property>
+	    <property name="interceptorNames">
+	        <list>
+	            <value>permssionBeforeControllerAdvisor</value>
+	        </list>
+	    </property>
+	</bean>
+	
+	<bean id="logControllerTarget" class="com.clientfills.crm.controller.log.LogController">
+	    <property name="module"><value>datalog</value></property>
+	</bean>
+	<bean id="logController" class="org.springframework.aop.framework.ProxyFactoryBean">
+	    <property name="target">
+	        <ref bean="logControllerTarget"/>
+	    </property>
+	    <property name="proxyInterfaces">
+	        <value>org.springframework.web.servlet.mvc.Controller</value>
+	    </property>
+	    <property name="interceptorNames">
+	        <list>
+	            <value>permssionBeforeControllerAdvisor</value>
+	        </list>
+	    </property>
+	</bean>
+	
+	<bean id="searchControllerTarget" class="com.clientfills.crm.controller.search.SearchController">
+	    <property name="module"><value>search</value></property>
+		<property name="moduleEntrySearchService"><ref bean="moduleEntrySearchService"/></property>        	
+	</bean>
+	<bean id="searchController" class="org.springframework.aop.framework.ProxyFactoryBean">
+	    <property name="target">
+	        <ref bean="searchControllerTarget"/>
+	    </property>
+	    <property name="proxyInterfaces">
+	        <value>org.springframework.web.servlet.mvc.Controller</value>
+	    </property>
+	    <property name="interceptorNames">
+	        <list>
+	            <value>permssionBeforeControllerAdvisor</value>
+	        </list>
+	    </property>
+	</bean>
+	
+	<bean id="featuredDataControllerTarget" class="com.clientfills.crm.featureddata.FeaturedDataController">
+	    <property name="module"><value>search</value></property>
+		<property name="featuredDataService"><ref bean="featuredDataService"/></property>        	
+	</bean>
+	<bean id="featuredDataController" class="org.springframework.aop.framework.ProxyFactoryBean">
+	    <property name="target">
+	        <ref bean="featuredDataControllerTarget"/>
+	    </property>
+	    <property name="proxyInterfaces">
+	        <value>org.springframework.web.servlet.mvc.Controller</value>
+	    </property>
+	    <property name="interceptorNames">
+	        <list>
+	            <value>permssionBeforeControllerAdvisor</value>
+	        </list>
+	    </property>
+	</bean>
+	
+  <!-- ADVICE DEFINITION -->
+  <bean id="userLocaleInterceptor" class="com.clientfills.crm.controller.UserLocaleInterceptor" />
+  
+  <!-- ADVICE DEFINITION END -->	
+
+  <bean id="urlMapping" class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+      
+    <property name="interceptors">
+      <list>
+         <ref bean="userLocaleInterceptor" />
+      </list>
+    </property>
+     
+    <property name="mappings">
+     <props>
+		<prop key="login">loginController</prop>
+		<prop key="logout">logoutController</prop>				
+		<prop key="home">homeController</prop>
+		
+		<prop key="mobilelogin">mobileLoginController</prop>
+		<prop key="mobilehome">mobileController</prop>
+		
+		<prop key="user.json">userController</prop>
+		<prop key="user.xml">userController</prop>
+		
+		<prop key="usergroup.json">userGroupController</prop>
+		<prop key="usergroup.xml">userGroupController</prop>
+		
+		<prop key="contact.json">contactController</prop>
+		<prop key="contact.xml">contactController</prop>
+		
+		<prop key="workflow.json">workflowController</prop>
+		<prop key="workflow.xml">workflowController</prop>
+		
+		<prop key="lead.json">leadController</prop>
+		<prop key="lead.xml">leadController</prop>
+		
+		<prop key="opportunity.json">opportunityController</prop>
+		<prop key="opportunity.xml">opportunityController</prop>
+		
+		<prop key="quote.json">quoteController</prop>
+		<prop key="quote.xml">quoteController</prop>
+		
+		<prop key="contract.json">contractController</prop>
+		<prop key="contract.xml">contractController</prop>
+		
+		<prop key="corporateaccount.json">corporateAccountController</prop>
+		<prop key="corporateaccount.xml">corporateAccountController</prop>
+		
+		<prop key="personalaccount.json">personalAccountController</prop>
+		<prop key="personalaccount.xml">personalAccountController</prop>						
+		
+		<prop key="activity.json">activityController</prop>
+		<prop key="activity.xml">activityController</prop>
+		
+		<prop key="activityFollow.json">activityFollowController</prop>
+		<prop key="activityFollow.xml">activityFollowController</prop>
+		
+		<prop key="search.json">searchController</prop>
+		<prop key="search.xml">searchController</prop>
+		
+		<prop key="featureddata.json">featuredDataController</prop>
+		<prop key="featureddata.xml">featuredDataController</prop>
+		
+		<prop key="apispec.json">apiSpecController</prop>
+		<prop key="apispec.xml">apiSpecController</prop>
+		
+		<prop key="log.json">logController</prop>
+		<prop key="log.xml">logController</prop>
+		
+		<prop key="**">loginController</prop>
+	  </props>
+    </property>        
+  </bean>
+  
+  <!-- alternate XML view resolver, invoked if view returned from controller matches views.xml mapping -->
+  <bean id="xmlViewResolver" class="org.springframework.web.servlet.view.XmlViewResolver">
+  	<property name="order" value="1" />
+  </bean>
+
+  <!-- default view resolver -->
+	<bean id="viewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">        
+        <property name="prefix"><value>/WEB-INF/jsp/</value></property>
+        <property name="suffix"><value>.jsp</value></property>
+    </bean>
+
+</beans>

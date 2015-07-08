@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:solr="http://www.springframework.org/schema/data/solr"
+    xmlns:tx="http://www.springframework.org/schema/tx"
+    xsi:schemaLocation="http://www.springframework.org/schema/data/solr
+                        http://www.springframework.org/schema/data/solr/spring-solr.xsd 
+                        http://www.springframework.org/schema/beans 
+                        http://www.springframework.org/schema/beans/spring-beans.xsd
+                        http://www.springframework.org/schema/tx 
+                        http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+ <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+      <property name="location" value="classpath:base.properties"/>
+      <property name="order" value="1"/>
+ </bean>
+  
+ <tx:annotation-driven transaction-manager="transactionManager"/>  
+        
+ <!-- Hibernate SessionFactory -->
+ <bean id="sessionFactory" class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+    
+  <property name="mappingDirectoryLocations">
+    <list>
+      <value>/WEB-INF/mappings</value>
+    </list>
+  </property>
+  
+   <property name="hibernateProperties">
+	   <props>
+	    <prop key="hibernate.show_sql">false</prop>
+	    <prop key="hibernate.session_factory_name">Factory</prop>
+	    <prop key="hibernate.bytecode.use_reflection_optimizer">false</prop>
+	    <!-- <prop key="hibernate.hbm2ddl.auto">update</prop> -->
+	    
+	    <prop key="hibernate.dialect">org.hibernate.dialect.MySQLInnoDBDialect</prop>
+	    <!-- <prop key="hibernate.dialect">org.hibernate.dialect.PostgreSQLDialect</prop> -->
+	    <!-- <prop key="hibernate.dialect">org.hibernate.dialect.Oracle10gDialect</prop> -->
+	    
+	    <prop key="hibernate.connection.provider_class">org.hibernate.connection.C3P0ConnectionProvider</prop>
+	    <prop key="hibernate.connection.driver_class">${db.driverclass}</prop>
+        <prop key="hibernate.connection.url">${db.url}</prop>
+        <prop key="hibernate.connection.username">${db.username}</prop>
+        <prop key="hibernate.connection.password">${db.password}</prop>
+	    
+	    <prop key="hibernate.c3p0.acquire_increment">2</prop>
+        <prop key="hibernate.c3p0.idle_test_period">1800</prop>
+        <prop key="hibernate.c3p0.max_size">30</prop>
+        <prop key="hibernate.c3p0.max_statements">50</prop>
+        <prop key="hibernate.c3p0.min_size">5</prop>
+        <prop key="hibernate.c3p0.timeout">1800</prop>
+      
+	    <prop key="hibernate.cache.use_query_cache">false</prop>    
+	    <prop key="hibernate.cache.use_second_level_cache">false</prop>
+	    <!-- <prop key="hibernate.cache.provider_class">org.hibernate.cache.EhCacheProvider</prop>
+	    <prop key="hibernate.cache.query_cache_factory">org.hibernate.cache.StandardQueryCacheFactory</prop>
+	    <prop key="hibernate.cache.region.factory_class">net.sf.ehcache.hibernate.EhCacheRegionFactory</prop>
+	    <prop key="net.sf.ehcache.configurationResourceName">ehcache.xml</prop> 
+	    
+	    <prop key="hibernate.search.default.indexBase">${app.home}/search/lucene/indexes</prop> 
+	    <prop key="hibernate.search.default.optimizer.operation_limit.max">1000</prop>
+	    <prop key="hibernate.search.default.optimizer.transaction_limit.max">100</prop>
+	    <prop key="hibernate.search.Animal.optimizer.transaction_limit.max">50</prop>
+	    -->
+	    
+	   </props>
+	  </property> 
+  
+ </bean>
+ 		
+ <bean id="transactionManager" class="org.springframework.orm.hibernate4.HibernateTransactionManager">
+     <property name="sessionFactory" ref="sessionFactory"/>
+ </bean>
+   
+ <!-- 
+   *************************************************************
+   USER and PERMISSION
+   *************************************************************
+  -->
+  
+ <!-- User Entity Proxy with inner User Entity implementation -->
+ <bean class="org.springframework.aop.framework.ProxyFactoryBean" id="userDao">
+  <property name="target">
+   <bean class="com.jumkid.base.model.user.UserDao">
+    <property name="userGroupDao"><ref bean="userGroupDao"/></property>
+    <property name="sessionFactory" ref="sessionFactory"/>    
+   </bean>
+  </property>
+  <property name="proxyInterfaces"><value>com.jumkid.base.model.user.IUserDao</value></property>
+ </bean>
+ 
+ <!-- UserGroup Entity Proxy with inner UserGroup Entity implementation -->
+ <bean class="org.springframework.aop.framework.ProxyFactoryBean" id="userGroupDao">
+  <property name="target">
+   <bean class="com.jumkid.base.model.usergroup.UserGroupDao">
+    <property name="sessionFactory" ref="sessionFactory"/>    
+   </bean>
+  </property>
+  <property name="proxyInterfaces"><value>com.jumkid.base.model.usergroup.IUserGroupDao</value></property>  
+ </bean>
+
+ <!-- DataLogDao Entity Proxy with inner DataLogDao Entity implementation -->
+ <bean class="org.springframework.aop.framework.ProxyFactoryBean" id="dataLogDao">
+  <property name="target">
+   <bean class="com.jumkid.base.model.datalog.DataLogDao">
+    <property name="sessionFactory" ref="sessionFactory"/>    
+   </bean>
+  </property>
+  <property name="proxyInterfaces"><value>com.jumkid.base.model.datalog.IDataLogDao</value></property>
+ </bean>
+
+</beans>
