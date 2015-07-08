@@ -1,6 +1,6 @@
 -- MySQL DB creation
 -- ---------------------------------------
--- Version : 3
+-- Version : 3.1
 
 -- ----------------------------
 --  Table structure for category
